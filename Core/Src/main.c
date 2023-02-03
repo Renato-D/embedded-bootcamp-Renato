@@ -19,6 +19,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -30,10 +32,13 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
+	SPI_HandleTypeDef hspi1;
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -66,6 +71,46 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 
+	//Length -   Timing -
+
+	//Initialize the SPI handle structure
+	hspi1.Instance = SPI1;
+	hspi1.Init.Mode = SPI_MODE_MASTER;
+	hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+	hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+	hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
+	hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+	hspi1.Init.NSS = SPI_NSS_SOFT;
+	hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+	hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
+	hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
+	hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+	hspi1.Init.CRCPolynomial = 7;
+
+	//Initialize the SPI peripheral
+	HAL_SPI_Init(&hspi1);
+
+	// Transmit and receive data over the SPI interface
+	uint8_t tx_data[3];
+	tx_data[0] = 0b00000001;
+	tx_data[1] = 0b1000000;
+	tx_data[2] = 0b00000000;
+
+	uint8_t rx_data[3];
+
+	// Call the HAL_SPI_TransmitReceive function
+	//a pointer to the SPI handle, a pointer to the transmit data buffer, a pointer to the receive data buffer, the size of the data, and the timeout value.
+	HAL_StatusTypeDef result = HAL_SPI_TransmitReceive(&hspi1,txData,rxData,3,100);
+
+	// Check the return value of the function for success or failure
+	if (result == HAL_OK) {
+        // The transmit and receive was successful
+        // Do something with the received data
+    } else {
+        // The transmit and receive failed
+        // Handle the error
+    }
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -87,6 +132,9 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  MX_SPI1_Init();
+  MX_SPI2_Init();
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -95,6 +143,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	HAL_Delay(10);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
